@@ -7,7 +7,7 @@ Built for the CartShare internship/course project brief.
 ## Live demo
 
 _Add your deployed URL here once published (see steps below), e.g._
-`https://samg-z.github.io/15th-August-2025_Somprikta-Tude_CarShare/`
+`https://samg-z.github.io/15th-August-2025_Somprikta-Tudu_CarShare/`
 
 ## Run it locally
 
