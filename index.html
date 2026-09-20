@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CartShare — split the cart, not the group chat</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<section id="screen-login" class="screen active">
+  <main class="wrap">
+    <div class="lockup">
+      <h1>Split the cart,<br>not the group chat.</h1>
+      <p>One shared list for everyone in the room — no more "wait, did anyone get milk?"</p>
+    </div>
+    <form class="stack" id="form-login">
+      <div class="field">
+        <label for="in-name">Your name</label>
+        <input type="text" id="in-name" placeholder="e.g. Sam" required maxlength="30" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="in-mobile">Mobile number</label>
+        <input type="tel" id="in-mobile" placeholder="e.g. 98765 43210" required maxlength="15" autocomplete="tel">
+      </div>
+      <p class="hint">Used only to identify you inside a room — kept on this device.</p>
+      <button type="submit">Continue</button>
+    </form>
+  </main>
+  <footer class="foot">CartShare — a group cart for roommates, teams and trips</footer>
+</section>
+
+<!-- ===================== ROOM CHOICE ===================== -->
+<section id="screen-room" class="screen">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">🛒 CartShare</span></div>
+    <div class="who">Signed in as <strong id="whoami-name"></strong> <button class="subtle small" id="btn-logout">Not you?</button></div>
+  </header>
+  <main class="wrap">
+    <h1 style="font-size:1.5rem;margin-bottom:24px;">Start or join a room</h1>
+    <div class="split">
+      <div class="panel">
+        <h2>Start a room</h2>
+        <p class="desc">Get a code, share it with your roommates or group.</p>
+        <button id="btn-create-room" style="width:100%;">Create a new room</button>
+      </div>
+      <div class="panel">
+        <h2>Join a room</h2>
+        <p class="desc">Already have a code from someone else?</p>
+        <div class="join-row">
+          <input type="text" id="in-join-code" placeholder="ROOM CODE" maxlength="6">
+          <button id="btn-join-room" class="ghost">Join</button>
+        </div>
+        <div class="error-text" id="join-error"></div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ===================== CART ===================== -->
+<section id="screen-cart" class="screen">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">🛒 CartShare</span></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="room-chip">
+        Room <span id="room-code-label"></span>
+        <button class="subtle small" id="btn-copy-code" type="button">Copy</button>
+      </div>
+      <button class="subtle small" id="btn-leave-room" type="button">Leave</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="cart-grid">
+      <!-- Left: cart -->
+      <div>
+        <h1 style="font-size:1.3rem;">Shared cart</h1>
+        <form class="add-form" id="form-add-item" autocomplete="off">
+          <input type="text" id="in-item-name" placeholder="Item, e.g. Milk" required maxlength="40">
+          <input type="number" id="in-item-qty" placeholder="Qty" min="1" value="1" required>
+          <input type="number" id="in-item-price" placeholder="Price $" min="0" step="0.01" required>
+          <button type="submit">Add</button>
+        </form>
+
+        <table class="ledger">
+          <thead>
+            <tr><th style="width:44%;">Item</th><th>Qty</th><th>Price</th><th>Subtotal</th><th></th></tr>
+          </thead>
+          <tbody id="cart-rows">
+            <tr class="empty-row"><td colspan="5">No items yet — add the first one above.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div class="row"><span>Items</span><span id="total-count">0</span></div>
+          <div class="row grand"><span>Subtotal</span><span id="total-amount">$0.00</span></div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Free delivery at $<span id="threshold-amount">75</span></span><span id="progress-pct">0%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+
+        <div class="cart-actions">
+          <button id="btn-print" class="ghost" type="button">Print receipt</button>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div>
+        <div class="side-card">
+          <h3 style="font-size:.95rem;">Shoppers in this room</h3>
+          <ul class="members-list" id="members-list"></ul>
+        </div>
+        <div class="side-card">
+          <h3 style="font-size:.95rem;">Activity</h3>
+          <ul class="activity-list" id="activity-list">
+            <li class="empty-note">Nothing yet.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="foot">Open this room in another tab and log in as someone else to see live sync.</footer>
+</section>
+
+<!-- Printable receipt (hidden on screen) -->
+<div id="receipt">
+  <h2>CartShare receipt</h2>
+  <div>Room <strong id="r-room-code"></strong> — printed <span id="r-date"></span></div>
+  <table>
+    <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Added by</th></tr></thead>
+    <tbody id="r-rows"></tbody>
+  </table>
+  <div class="r-total">Total: <span id="r-total"></span></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
